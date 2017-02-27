@@ -1,0 +1,35 @@
+.canvas-container {
+  padding-top: 50px;
+  margin: auto;
+}
+.button-row {
+  width: 600px;
+  margin: auto;
+  padding-top: 20px;
+}
+#viewport {
+  width: 600px;
+  height: 400px;
+  background:url('img/cavebg.png');
+}
+
+#msgLog {
+  padding: 10px;
+  margin: auto;
+  margin-top: 25px;
+  height: 300px;
+  width: 600px;
+  border: 1px solid #ccc;
+  font: 16px/26px Arial, Serif;
+  overflow: auto;
+}
+button {
+  margin: auto;
+  width: 150px;
+  height: 40px;
+  color: #ccc;
+  background-color: black;
+}
+#fight, #reset {
+  margin: auto;
+}

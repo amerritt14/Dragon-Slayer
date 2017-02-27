@@ -5,7 +5,8 @@ function hero(name, level = 1) {
   this.constitution = 15 + 1.2*level;
   this.dexterity    = 15 + 1.2*level;
   this.quickness    = 15 + 1.2*level;
-  this.health       = 10 + this.constitution * 5;
+  this.maxHP        = 10 + this.constitution * 5;
+  this.currentHP    = this.maxHP
   this.weaponAPS    = 2.5;
   this.weaponDmg    = 2;
   this.attackAPS    = this.weaponAPS * (this.quickness/100 + 1);
@@ -19,12 +20,12 @@ class monster {
     this.constitution = 10 + 1.2*level;
     this.dexterity    = 10 + 1.2*level;
     this.quickness    = 10 + 1.2*level;
-    this.health       = Math.round(this.constitution * 5);
+    this.maxHP        = Math.round(this.constitution * 5);
+    this.currentHP    = this.maxHP
     this.weaponAPS    = 1 + .2*level;
     this.weaponDmg    = 1.2*level;
     this.attackAPS    = this.weaponAPS * (this.quickness/100 + 1);
   }
-
 }
 
 function hit(attacker, defender) {
@@ -53,7 +54,7 @@ function swing(attacker, defender) {
       round(damage += (damage * 1.5) + 1, 1);
       hitMessage = "CRIT"
     }
-    defender.health -= damage;
+    defender.currentHP -= damage;
     if (attacker.name === player.name) {
       attackMessage = "You " + hitMessage + " " + defender.name + " for " + damage + " damage!";
     } else {
@@ -66,7 +67,9 @@ function swing(attacker, defender) {
       attackMessage = attacker.name + " swings but misses!";
     }
   }
-  console.log(attackMessage)
+  msgLog = document.getElementById("msgLog");
+  document.getElementById("msgLog").innerHTML += "<br>" + attackMessage;
+  msgLog.scrollTop = msgLog.scrollHeight;
 }
 
 function battle(enemy) {
@@ -96,15 +99,18 @@ function battle(enemy) {
 }
 
 function checkHealth(defender) {
- return defender.health <= 0;
+ return defender.currentHP <= 0;
 }
 
 function deathMessage(corpse) {
-  if (player.health <= 0) {
-    console.log ("You have been slain!");
+  msgLog = document.getElementById("msgLog");
+  if (player.currentHP <= 0) {
+    document.getElementById("msgLog").innerHTML += "<br>You have been slain!";
+    msgLog.scrollTop = msgLog.scrollHeight;
     return;
   } else {
-    console.log ("You have defeated " + corpse.name + "!");
+    document.getElementById("msgLog").innerHTML += "<br>You have defeated " + corpse.name + "!";
+    msgLog.scrollTop = msgLog.scrollHeight;
     return;
   }
 }
@@ -114,6 +120,8 @@ function round(value, decimals) {
 }
 
 function reset() {
-  player.health = 20 + player.constitution * 5;
-  dragon.health = Math.round(0 + dragon.constitution * 5);
+  clearInterval(attackTimer);
+  document.getElementById("msgLog").innerHTML = "An enemy has appeared!";
+  player.currentHP = player.maxHP;
+  enemy.currentHP = enemy.maxHP;
 }
