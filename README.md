@@ -41,4 +41,6 @@
   (` (-~(( `~`'  )                        ' (/ '
    `~'    )'`')                              '
      ` ``
+     
+
 To run the game, open the index.html file in any browser that has javascript enabled.
