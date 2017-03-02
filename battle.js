@@ -1,3 +1,5 @@
+// 2nd file to include
+// Contains battle logic
 function hero(name, level = 1) {
   this.name         = name;
   this.level        = level;
@@ -10,6 +12,8 @@ function hero(name, level = 1) {
   this.weaponAPS    = 2.5;
   this.weaponDmg    = 2;
   this.attackAPS    = this.weaponAPS * (this.quickness/100 + 1);
+  heroIMG.src = 'img/hero1.png';
+  heroIMG.onload = drawHero()
 }
 
 class monster {
@@ -25,6 +29,8 @@ class monster {
     this.weaponAPS    = 1 + .2*level;
     this.weaponDmg    = 1.2*level;
     this.attackAPS    = this.weaponAPS * (this.quickness/100 + 1);
+    enemyIMG.src = 'img/dragon'+(Math.floor(Math.random() * 2) + 1)  +'.png';
+    enemyIMG.onload = drawEnemy()
   }
 }
 
@@ -56,13 +62,13 @@ function swing(attacker, defender) {
     }
     defender.currentHP -= damage;
     if (attacker.name === player.name) {
-      attackMessage = "You " + hitMessage + " " + defender.name + " for " + damage + " damage!";
+      attackMessage = "<font color='#ff944d'>You <strong>" + hitMessage + "</strong> " + defender.name + " for " + damage + " damage!</font>";
     } else {
-      attackMessage = "You are " + hitMessage + " for " + damage + " damage by " + attacker.name +"!";
+      attackMessage = "<font color='red'>You are <strong>" + hitMessage + "</strong> for " + damage + " damage by " + attacker.name +"!</font>";
     }
   } else {
     if (attacker.name === player.name) {
-      attackMessage = "You swing but miss!";
+      attackMessage = "<font color='#b38f00'>You swing but miss!";
     } else {
       attackMessage = attacker.name + " swings but misses!";
     }
@@ -73,43 +79,54 @@ function swing(attacker, defender) {
 }
 
 function battle(enemy) {
-  playerAPS = 0
-  enemyAPS = 0
-  var attackTimer = window.setInterval(function() {
-    if (playerAPS <= 0 || enemyAPS <= 0) {
-      playerAPS += round(player.attackAPS, 2);
-      enemyAPS += round(enemy.attackAPS, 2);
+  playerAPS = 0;
+  enemyAPS = 0;
+  // Prevent interval being triggered multiple times with button clicksß
+  if(!window.fightInterval){
+    window.fightInterval = setInterval(function() { attackRound(enemy) }, framerate);
+  }
+}
+
+function attackRound(enemy) {
+  if (playerAPS <= 0 || enemyAPS <= 0) {
+    playerAPS += round(player.attackAPS, 2);
+    enemyAPS += round(enemy.attackAPS, 2);
+  }
+  if (playerAPS >= enemyAPS) {
+    swing(player, enemy);
+    playerAPS -= 1;
+    animateHeroAttack();
+    if (checkHealth(enemy)) {
+      deathMessage(enemy);
+      stopFight();
+      stopAttackAnimation();
     }
-    if (playerAPS >= enemyAPS) {
-      swing(player, enemy);
-      playerAPS -= 1;
-      if (checkHealth(enemy)) {
-        deathMessage(enemy);
-        clearInterval(attackTimer);
-      }
-    } else {
-      swing(enemy, player);
-      enemyAPS -= 1;
-      if (checkHealth(player)) {
-        deathMessage(player);
-        clearInterval(attackTimer);
-      }
+  } else {
+    swing(enemy, player);
+    enemyAPS -= 1;
+    animateEnemyAttack();
+    if (checkHealth(player)) {
+      deathMessage(player);
+      stopFight();
+      stopAttackAnimation();
     }
-  }, 0500);
+  }
 }
 
 function checkHealth(defender) {
- return defender.currentHP <= 0;
+  if(defender.currentHP < 0) { defender.currentHP = 0 };
+  drawCharacters();
+  return defender.currentHP <= 0;
 }
 
 function deathMessage(corpse) {
   msgLog = document.getElementById("msgLog");
   if (player.currentHP <= 0) {
-    document.getElementById("msgLog").innerHTML += "<br>You have been slain!";
+    document.getElementById("msgLog").innerHTML += "<font color='red'><strong><br>You have been slain!</strong></font>";
     msgLog.scrollTop = msgLog.scrollHeight;
     return;
   } else {
-    document.getElementById("msgLog").innerHTML += "<br>You have defeated " + corpse.name + "!";
+    document.getElementById("msgLog").innerHTML += "<strong><br>You have defeated " + corpse.name + "!</strong>";
     msgLog.scrollTop = msgLog.scrollHeight;
     return;
   }
@@ -119,9 +136,23 @@ function round(value, decimals) {
   return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
 }
 
+function stopFight() {
+  clearInterval(window.fightInterval);
+  window.fightInterval = null;
+  console.log("stopFight(): " + window.fightInterval)
+}
+
+function stopAttackAnimation() {
+  clearInterval(window.attackInterval);
+  window.attackInterval = null;
+  console.log("stopAttackAnimation(): " + window.attackInterval)
+}
+
 function reset() {
-  clearInterval(attackTimer);
+  stopFight();
+  stopAttackAnimation();
   document.getElementById("msgLog").innerHTML = "An enemy has appeared!";
   player.currentHP = player.maxHP;
   enemy.currentHP = enemy.maxHP;
+  drawCharacters();
 }
