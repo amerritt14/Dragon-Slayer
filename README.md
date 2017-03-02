@@ -1,4 +1,4 @@
-# Dragon-Slayer
+# DragonSlayer
                         /\
                         ||
                         ||
