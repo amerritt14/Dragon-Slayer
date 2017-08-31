@@ -8,16 +8,19 @@ function hero(name, level = 1) {
   this.dexterity    = 15 + 1.2*level;
   this.quickness    = 15 + 1.2*level;
   this.maxHP        = 10 + this.constitution * 5;
-  this.currentHP    = this.maxHP
+  this.currentHP    = this.maxHP;
   this.weaponAPS    = 2.5;
   this.weaponDmg    = 2;
   this.attackAPS    = this.weaponAPS * (this.quickness/100 + 1);
+  this.xp           = 0;
+  this.nextLevel    = 10;
   heroIMG.src = 'img/hero1.png';
-  heroIMG.onload = drawHero()
+  heroIMG.onload = drawHero();
 }
 
 class monster {
   constructor(name, level = 0) {
+    console.log("making dragon " + name)
     this.name         = name;
     this.level        = level;
     this.strength     = 10 + 1.2*level;
@@ -25,7 +28,7 @@ class monster {
     this.dexterity    = 10 + 1.2*level;
     this.quickness    = 10 + 1.2*level;
     this.maxHP        = Math.round(this.constitution * 5);
-    this.currentHP    = this.maxHP
+    this.currentHP    = this.maxHP;
     this.weaponAPS    = 1 + .2*level;
     this.weaponDmg    = 1.2*level;
     this.attackAPS    = this.weaponAPS * (this.quickness/100 + 1);
@@ -35,7 +38,7 @@ class monster {
 }
 
 function hit(attacker, defender) {
-  if (attacker.dexterity * (Math.random() + 1) >= defender.dexterity * (Math.random() + .7)) {
+  if (attacker.dexterity * (Math.random() + 1) >= defender.dexterity * (Math.random() + 0.7)) {
     return true;
   } else {
       return false;
@@ -48,7 +51,7 @@ function attackDmg(attacker) {
 
 function crit() {
   // 10% base crit chance
-  return Math.random() < .1;
+  return Math.random() < 0.1;
 }
 
 function swing(attacker, defender) {
@@ -81,7 +84,7 @@ function swing(attacker, defender) {
 function battle(enemy) {
   playerAPS = 0;
   enemyAPS = 0;
-  // Prevent interval being triggered multiple times with button clicksß
+  // Prevent interval being triggered multiple times with button clicks
   if(!window.fightInterval){
     window.fightInterval = setInterval(function() { attackRound(enemy) }, framerate);
   }
@@ -122,11 +125,14 @@ function checkHealth(defender) {
 function deathMessage(corpse) {
   msgLog = document.getElementById("msgLog");
   if (player.currentHP <= 0) {
+    reset("soft")
     document.getElementById("msgLog").innerHTML += "<font color='red'><strong><br>You have been slain!</strong></font>";
     msgLog.scrollTop = msgLog.scrollHeight;
     return;
   } else {
+    reset("soft")
     document.getElementById("msgLog").innerHTML += "<strong><br>You have defeated " + corpse.name + "!</strong>";
+    awardXP()
     msgLog.scrollTop = msgLog.scrollHeight;
     return;
   }
@@ -139,20 +145,33 @@ function round(value, decimals) {
 function stopFight() {
   clearInterval(window.fightInterval);
   window.fightInterval = null;
-  console.log("stopFight(): " + window.fightInterval)
 }
 
 function stopAttackAnimation() {
   clearInterval(window.attackInterval);
   window.attackInterval = null;
-  console.log("stopAttackAnimation(): " + window.attackInterval)
 }
 
-function reset() {
-  stopFight();
-  stopAttackAnimation();
-  document.getElementById("msgLog").innerHTML = "An enemy has appeared!";
-  player.currentHP = player.maxHP;
-  enemy.currentHP = enemy.maxHP;
-  drawCharacters();
+function newEnemy() {
+  console.log("Summoning new monster, Dragon(level "+ (player.level + 2) +")" )
+  var old = enemy
+  window.enemy = new monster("Dragon(level "+ (player.level + 2) +")", player.level + 2);
+  console.log("Same? " + old == enemy)
+  console.log(enemy.currentHP)
+  stopFight()
+  stopAttackAnimation()
+  drawCharacters()
+  drawEnemy()
+  drawEnemyHealthbar()
+}
+
+function reset(option) {
+  stopFight()
+  stopAttackAnimation()
+  drawCharacters()
+  if (option === "hard") {
+    player.currentHP = player.maxHP
+    enemy.currentHP = enemy.maxHP
+    document.getElementById("msgLog").innerHTML = "An enemy has appeared!"
+  }
 }

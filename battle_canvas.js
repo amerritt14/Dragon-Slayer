@@ -11,7 +11,7 @@ var enemyIMG = new Image();
 var heroIMG = new Image();
 var enemyDX = 0;
 var heroDX = 0;
-var framerate = 33 // 33ms is ~30 fps
+var framerate = 5 // 33ms is ~30 fps
 
 // Enemy on the right
 function drawEnemy() {
@@ -72,12 +72,9 @@ function animateEnemyAttack() {
   window.attackInterval = setInterval( function() {
     // At 60 pixels, reverse the direction
     if (enemyDX === 60) {
-      console.log("Switched directions. enemyDX: " + enemyDX + "and direction: " + direction);
       direction = -direction;
-      console.log("Direction after switch: " + direction);
     }
     enemyDX += direction;
-    console.log("enemyDX += direction = enemyDX: " + enemyDX + " += " + direction + " = " + enemyDX);
     drawCharacters();
     if (enemyDX === 0){
       // Stop Animation
@@ -99,12 +96,9 @@ function animateHeroAttack() {
   window.attackInterval = setInterval( function() {
     // At 60 pixels, reverse the direction
     if (heroDX === 60) {
-      console.log("Switched directions. heroDX: " + heroDX + "and direction: " + direction);
       direction = -direction;
-      console.log("Direction after switch: " + direction);
     }
     heroDX += direction;
-    console.log("heroDX += direction = heroDX: " + heroDX + " += " + direction + " = " + heroDX);
     drawCharacters();
     if (heroDX === 0){
       // Stop Animation
